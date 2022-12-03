@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import { Loading } from './Loading'
 
+const SECURITY_CODE='paradigma'
 export class ClassState extends Component {
     constructor(props){
         super(props)
         this.state = {
-            error: true,
+            value: '',
+            error: false,
             loading: false,
         }
     }
@@ -23,26 +25,41 @@ export class ClassState extends Component {
         if (!!this.state.loading) {
             setTimeout(() => {
                 console.log("Haciendo la validación");   
-                this.setState({loading: false})
+                this.state.value===SECURITY_CODE 
+                    ? this.setState({error:false, loading: false}) 
+                    :this.setState({error:true, loading: false})
+                //  if (value===SECURITY_CODE) {
+                //     setError(false)
+                //  } else {
+                //     setError(true)
+                //  }
+                //  this.setState({loading: false})
                 console.log("Terminando la validación");   
-           }, 3000);
+           }, 1000);
         }
     }
 
     render() {
+
         return (
             <div>
                 <h2>Eliminar {this.props.name}</h2>
                 <p>Por favor, escribe el código de seguridad</p>
-                {this.state.error && (
-                <p>El código es incorrecto</p>
+
+                {(this.state.error && !this.state.loading) && (
+                    <p>El código es incorrecto</p>
                 )}
+
                 {this.state.loading && (
-                <Loading/>
+                    <Loading/>
                 )}
                 <input 
                     type="text"
-                    placeholder='Ingresa código de seguridad' />
+                    placeholder='Ingresa código de seguridad'
+                    value={this.state.value}
+                    onChange={(e)=>{
+                        this.setState({value: e.target.value})
+                    }} />
                 <button
                     onClick={()=> this.setState({loading: true})}
                 >Comprobar</button>
