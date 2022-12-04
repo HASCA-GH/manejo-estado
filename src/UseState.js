@@ -7,7 +7,7 @@ const UseState = ({name}) => {
         value: '',
         error: false,
         loading: false,
-        active: false,
+        deleted: false,
         confirmed: false,
     })
     // const [value, setValue] = React.useState('')
@@ -15,7 +15,39 @@ const UseState = ({name}) => {
     // const [loading, setLoading] = React.useState(false)
 
     console.log(state);
+    const onConfirm = () => {
+        setState({
+            ...state, 
+            error: false,
+            loading: false,
+            confirmed: true,
+        })   
+    }
 
+    const onError = () => {
+        setState({
+            ...state,
+            error: true,
+            loading: false,
+            confirmed: false,
+        })
+    }
+
+    const onWrite = (newValue) => {
+        setState({...state, value: newValue })
+    }
+
+    const onCheck = ()=> {
+        setState({...state, loading: true})
+    } 
+
+    const onDelete = ()=> {
+        setState({...state, deleted: true})
+    }
+
+    const onReset = ()=> {
+        setState({...state, confirmed: false, deleted: false, value: ''})
+    }
     React.useEffect(() => {
          console.log("Empezando el efecto");
          
@@ -23,8 +55,8 @@ const UseState = ({name}) => {
              setTimeout(() => {
                  console.log("Haciendo la validación");   
                  state.value===SECURITY_CODE 
-                    ? setState({...state, error: false, loading: false}) 
-                    : setState({...state, error: true, loading: false})
+                    ? onConfirm()
+                    : onError()
                 //  if (value===SECURITY_CODE) {
                 //     setError(false)
                 //  } else {
@@ -39,35 +71,57 @@ const UseState = ({name}) => {
          console.log("Terminando el efecto");
       
     }, [state.loading])
-    
-  return (
-    <div>
-        <h2>Eliminar {name}</h2>
-        <p>Por favor, escribe el código de seguridad</p>
-        {(state.error && !state.loading) && (
-            <p>El código es incorrecto</p>
-        )}
-        {state.loading && (
-            <p>Cargando...</p>
-        )}
-        <input 
-            type="text"
-            placeholder='Ingresa código de seguridad'
-            value={state.value}
-            onChange={(e)=>{
-                // setValue(e.target.value)
-                setState({...state, value: e.target.value })
-                // setError(false)
-            }}
-        />
-        <button
-            onClick={()=> 
-                setState({...state, loading: true})
-                // setLoading(true)
-            }
-        >Comprobar</button>
-    </div>
-  )
+    if ( !state.deleted && !state.confirmed) {
+        return (
+          <div>
+              <h2>Eliminar {name}</h2>
+              <p>Por favor, escribe el código de seguridad</p>
+              {(state.error && !state.loading) && (
+                  <p>El código es incorrecto</p>
+              )}
+              {state.loading && (
+                  <p>Cargando...</p>
+              )}
+              <input 
+                  type="text"
+                  placeholder='Ingresa código de seguridad'
+                  value={state.value}
+                  onChange={(e)=>{onWrite(e.target.value)}}
+              />
+              <button
+                  onClick={()=> onCheck()}
+              >Comprobar</button>
+          </div>
+        )
+        
+    } else if (!!state.confirmed && !state.deleted ) {
+        return (
+            <>
+                <p>Pedimos confirmación. ¿Estas seguro?</p>
+                <button
+                    onClick={()=> {
+                        onDelete()
+                    }}
+                >Sí</button>
+                <button
+                    onClick={()=> {
+                        onReset()
+                    }}
+                >No</button>
+            </>
+        )
+    } else {
+        return (
+            <>
+                <p>Eliminado con éxito</p>
+                <button
+                    onClick={()=> {
+                        onReset()
+                    }}
+                >Resetear, volver atrás</button>
+            </>
+        )
+    }
 }
 
 export { UseState}
